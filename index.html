@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Aspects</title>
+  <style>
+    body { font-family:-apple-system,system-ui,sans-serif; margin:20px; max-width:900px; }
+    .muted { opacity:.7; }
+    .card { border:1px solid #ddd; border-radius:12px; padding:14px; margin:14px 0; }
+    .row { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; }
+    label { display:block; font-size:12px; opacity:.8; margin-bottom:6px; }
+    input,select,button { width:100%; padding:10px; font-size:16px; border-radius:10px; border:1px solid #ccc; }
+    button { font-weight:600; cursor:pointer; }
+    .error { color:#b00020; white-space:pre-wrap; }
+    .mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; }
+    .hit { border:1px solid #eee; border-radius:12px; padding:12px; margin-top:10px; }
+  </style>
+</head>
+<body>
+  <h1>Aspects</h1>
+  <p class="muted">Birth data → angles → aspect relationships. Reflection, not fate.</p>
+
+  <div class="card">
+    <div class="row">
+      <div style="min-width:160px">
+        <label>Date</label>
+        <input id="birthDate" type="date">
+      </div>
+
+      <div style="min-width:160px">
+        <label>Time (optional)</label>
+        <input id="birthTime" type="time">
+      </div>
+
+      <div style="min-width:200px">
+        <label>Time mode</label>
+        <select id="timeMode">
+          <option value="unknown">Unknown → use 12:00</option>
+          <option value="exact">Exact time</option>
+        </select>
+      </div>
+
+      <div style="min-width:220px">
+        <label>Timezone offset (minutes)</label>
+        <input id="tzOffsetMinutes" type="number" value="-300">
+      </div>
+
+      <div style="min-width:140px">
+        <label>Orb (°)</label>
+        <select id="orb">
+          <option value="2">2°</option>
+          <option value="4" selected>4°</option>
+          <option value="6">6°</option>
+        </select>
+      </div>
+
+      <div style="min-width:190px">
+        <button id="goBtn">Compute aspects</button>
+      </div>
+    </div>
+
+    <p class="muted" style="margin-top:10px">
+      Tip: New York winter = -300, summer = -240. First run may be slow (Render wakes up).
+    </p>
+  </div>
+
+  <div class="card">
+    <div id="status" class="muted">Idle.</div>
+    <div id="error" class="error"></div>
+    <div id="results"></div>
+  </div>
+
+  <script>
+    const API_BASE = "https://aspects-backend.onrender.com";
+
+    const ASPECTS = [
+      { name: "Conjunction", angle: 0 },
+      { name: "Square", angle: 90 },
+      { name: "Trine", angle: 120 },
+      { name: "Opposition", angle: 180 }
+    ];
+
+    function norm360(x){ let v=x%360; if(v<0) v+=360; return v; }
+    function minSep(a,b){ const d=Math.abs(norm360(a)-norm360(b)); return Math.min(d,360-d); }
+
+    function computeAspects(planets, orb){
+      const names = Object.keys(planets);
+      const hits = [];
+      for(let i=0;i<names.length;i++){
+        for(let j=i+1;j<names.length;j++){
+          const A=names[i], B=names[j];
+          const sep = minSep(planets[A], planets[B]);
+          for(const asp of ASPECTS){
+            const diff = Math.abs(sep - asp.angle);
+            if(diff <= orb){
+              hits.push({A,B,aspect:asp.name,sep,diff});
+              break;
+            }
+          }
+        }
+      }
+      hits.sort((a,b)=>a.diff-b.diff);
+      return hits;
+    }
+
+    async function fetchPlanets(date, time, tz){
+      const url = new URL(API_BASE + "/api/planets");
+      url.searchParams.set("date", date);
+      url.searchParams.set("time", time);
+      url.searchParams.set("tzOffsetMinutes", String(tz));
+      const res = await fetch(url.toString());
+      const data = await res.json();
+      if(!data.ok) throw new Error(data.error || "Backend error");
+      return data.planets;
+    }
+
+    document.getElementById("goBtn").onclick = async () => {
+      const status = document.getElementById("status");
+      const error = document.getElementById("error");
+      const results = document.getElementById("results");
+
+      error.textContent = "";
+      results.innerHTML = "";
+
+      const date = document.getElementById("birthDate").value;
+      const mode = document.getElementById("timeMode").value;
+      const timeRaw = document.getElementById("birthTime").value;
+      const time = (mode === "exact" && timeRaw) ? timeRaw : "12:00";
+      const orb = Number(document.getElementById("orb").value);
+      const tz = Number(document.getElementById("tzOffsetMinutes").value);
+
+      if(!date){ error.textContent = "Pick a date."; return; }
+      if(Number.isNaN(tz)){ error.textContent = "Timezone offset must be a number (e.g., -300)."; return; }
+
+      try{
+        status.textContent = "Calling backend (may wake up)…";
+        const planets = await fetchPlanets(date, time, tz);
+
+        status.textContent = "Computing aspects…";
+        const hits = computeAspects(planets, orb);
+
+        status.textContent = "Done.";
+
+        const line = document.createElement("div");
+        line.className = "mono muted";
+        line.textContent = Object.entries(planets).map(([k,v]) => `${k} ${Number(v).toFixed(2)}`).join(" • ");
+        results.appendChild(line);
+
+        if(hits.length === 0){
+          const none = document.createElement("div");
+          none.className = "muted";
+          none.style.marginTop = "10px";
+          none.textContent = "No major aspects found with the selected orb.";
+          results.appendChild(none);
+          return;
+        }
+
+        for(const h of hits){
+          const box = document.createElement("div");
+          box.className = "hit";
+          box.innerHTML = `<b>${h.A}</b> — <b>${h.B}</b> <span class="muted">(${h.aspect})</span><br>
+                           <span class="muted">sep ${h.sep.toFixed(2)}° • orb ${h.diff.toFixed(2)}°</span>`;
+          results.appendChild(box);
+        }
+      }catch(e){
+        status.textContent = "Error.";
+        error.textContent = String(e.message || e);
+      }
+    };
+  </script>
+</body>
+</html>
