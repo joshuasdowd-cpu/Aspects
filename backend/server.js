@@ -6,24 +6,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/health", (_req, res) => {
-  res.json({ ok: true });
-});
-
-function norm360(x) {
-  let v = x % 360;
-  if (v < 0) v += 360;
-  return v;
-}
-
-app.get("/api/planets", (req, res) => {
-  try {
-    const { date, time = "12:00" } = req.query;
-    if (!date) throw new Error("Missing date");
-
-    const [Y, M, D] = date.split("-").map(Number);
-    const [hh, mm] = time.split(":").map(Number);
-    const hour = hh + mm / const jd = julianDay(Y, M, D, hour);
 function julianDay(year, month, day, hour) {
   // Fliegel–Van Flandern / standard astronomical JD for Gregorian calendar
   let Y = year;
@@ -44,6 +26,26 @@ function julianDay(year, month, day, hour) {
     (hour / 24)
   );
 }
+
+app.get("/health", (_req, res) => {
+  res.json({ ok: true });
+});
+
+function norm360(x) {
+  let v = x % 360;
+  if (v < 0) v += 360;
+  return v;
+}
+
+app.get("/api/planets", (req, res) => {
+  try {
+    const { date, time = "12:00" } = req.query;
+    if (!date) throw new Error("Missing date");
+
+    const [Y, M, D] = date.split("-").map(Number);
+    const [hh, mm] = time.split(":").map(Number);
+    const hour = hh + mm / const jd = julianDay(Y, M, D, hour);
+
 
     const flags = swe.SEFLG_MOSEPH;
 
