@@ -2,394 +2,213 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Aspects — Practical Astrology</title>
-  <meta name="description" content="Aspects: practical self-awareness for people who don’t believe in astrology." />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Aspects — Practical / Skeptic-Friendly</title>
+
   <style>
-    :root{
-      --bg:#0b0d12; --card:#121726; --text:#e9ecf5; --muted:#a9b1c7;
-      --line:#222a42; --accent:#7aa2ff; --ok:#58d68d; --warn:#ffd166;
-      --bad:#ff5c7a;
-      --r:16px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-      background:linear-gradient(180deg, #070913 0%, #0b0d12 60%, #06070c 100%);
-      color:var(--text);
-    }
-    a{color:var(--accent); text-decoration:none}
-    a:hover{text-decoration:underline}
-    .wrap{max-width:1040px; margin:0 auto; padding:24px}
-    header{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 0 18px}
-    .brand{display:flex; flex-direction:column; gap:4px}
-    .brand h1{margin:0; font-size:20px; letter-spacing:.3px}
-    .brand p{margin:0; color:var(--muted); font-size:13px}
-    .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:8px 12px; border:1px solid var(--line); border-radius:999px;
-      background:rgba(18,23,38,.7);
-      color:var(--muted); font-size:13px;
-    }
-    .grid{display:grid; grid-template-columns: 360px 1fr; gap:16px}
-    @media (max-width: 920px){ .grid{grid-template-columns:1fr} }
-    .card{
-      background:rgba(18,23,38,.9);
-      border:1px solid var(--line);
-      border-radius:var(--r);
-      padding:16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
-    }
-    .card h2{margin:0 0 10px; font-size:16px}
-    .card h3{margin:16px 0 8px; font-size:14px; color:var(--muted); font-weight:600}
-    .row{display:grid; grid-template-columns:1fr; gap:10px}
-    label{display:block; font-size:12px; color:var(--muted); margin:0 0 6px}
-    input, select, button, textarea{
-      width:100%;
-      padding:11px 12px;
-      border:1px solid var(--line);
-      border-radius:12px;
-      background:#0c1020;
-      color:var(--text);
-      outline:none;
-    }
-    input::placeholder{color:#6e7895}
-    input:focus, select:focus, textarea:focus{border-color:rgba(122,162,255,.7); box-shadow:0 0 0 3px rgba(122,162,255,.15)}
-    .two{display:grid; grid-template-columns:1fr 1fr; gap:10px}
-    .actions{display:flex; gap:10px; margin-top:10px}
-    .actions button{cursor:pointer; font-weight:700}
-    .primary{background:linear-gradient(180deg, rgba(122,162,255,.95), rgba(122,162,255,.7)); border-color:rgba(122,162,255,.6); color:#071021}
-    .ghost{background:transparent}
-    .small{font-size:12px; color:var(--muted)}
-    .hr{height:1px; background:var(--line); margin:14px 0}
-    .kpi{display:flex; gap:10px; flex-wrap:wrap}
-    .kpi .chip{
-      border:1px solid var(--line);
-      background:rgba(12,16,32,.6);
-      padding:8px 10px;
-      border-radius:999px;
-      font-size:12px;
-      color:var(--muted);
-    }
-    .status{font-size:13px; color:var(--muted); margin-top:10px}
-    .status.ok{color:var(--ok)}
-    .status.bad{color:var(--bad)}
-    .table{width:100%; border-collapse:collapse; margin-top:10px; overflow:hidden; border-radius:12px; border:1px solid var(--line)}
-    .table th,.table td{padding:10px 10px; border-bottom:1px solid var(--line); text-align:left; font-size:13px}
-    .table th{color:var(--muted); font-weight:700; background:rgba(12,16,32,.7)}
-    .table tr:last-child td{border-bottom:none}
-    .badge{
-      display:inline-flex; align-items:center; padding:3px 8px; border-radius:999px;
-      border:1px solid var(--line); background:rgba(12,16,32,.6); color:var(--muted); font-size:12px
-    }
-    .badge.tight{border-color:rgba(255,209,102,.35); color:var(--warn)}
-    .badge.easy{border-color:rgba(88,214,141,.35); color:var(--ok)}
-    .badge.hard{border-color:rgba(255,92,122,.35); color:var(--bad)}
-    footer{margin-top:18px; color:var(--muted); font-size:12px}
-    code.inline{padding:2px 6px; border:1px solid var(--line); border-radius:8px; background:rgba(12,16,32,.7)}
+    :root { --b:#ddd; --bg:#fff; --muted:0.7; }
+    body { font-family:-apple-system,system-ui,sans-serif; margin:20px; max-width:900px; background:var(--bg); }
+    h1 { margin:0 0 6px; }
+    p { margin:6px 0 14px; }
+    .muted { opacity:var(--muted); }
+    .card { border:1px solid var(--b); border-radius:14px; padding:14px; margin:14px 0; }
+    .row { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; }
+    .field { min-width:160px; }
+    label { display:block; font-size:12px; opacity:.8; margin-bottom:6px; }
+    input, select, button { width:100%; padding:10px; font-size:16px; border-radius:10px; border:1px solid var(--b); }
+    button { cursor:pointer; font-weight:600; }
+    .chips { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+    .chip { border:1px solid var(--b); border-radius:999px; padding:6px 10px; font-size:13px; cursor:pointer; user-select:none; }
+    .chip.active { background:#000; color:#fff; border-color:#000; }
+    .error { color:#b00020; white-space:pre-wrap; }
+    .pill { display:inline-block; padding:3px 10px; border-radius:999px; border:1px solid var(--b); margin-left:8px; font-size:12px; }
+    .hits { display:grid; gap:10px; margin-top:10px; }
+    .hit { border:1px solid #eee; border-radius:12px; padding:12px; }
+    .mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; }
+    .small { font-size:13px; }
+    hr { border:none; border-top:1px solid var(--b); margin:12px 0; }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <header>
-      <div class="brand">
-        <h1>Aspects</h1>
-        <p>Astrology for people who don’t believe in astrology — practical, not fortune-telling.</p>
+  <h1>Aspects</h1>
+  <p class="muted">
+    Birth data → angles → aspect relationships.<br>
+    Reflection, not fate.
+  </p>
+
+  <div class="card">
+    <div class="row">
+      <div class="field">
+        <label>Birth date</label>
+        <input id="birthDate" type="date">
       </div>
-      <div class="pill" id="apiPill">
-        <span>API:</span>
-        <span id="apiUrlText">not set</span>
+
+      <div class="field">
+        <label>Birth time (optional)</label>
+        <input id="birthTime" type="time">
       </div>
-    </header>
 
-    <main class="grid">
-      <!-- LEFT: INPUTS -->
-      <section class="card">
-        <h2>Birth details</h2>
+      <div class="field">
+        <label>Time mode</label>
+        <select id="timeMode">
+          <option value="unknown">Unknown → use 12:00</option>
+          <option value="exact">Exact time</option>
+        </select>
+      </div>
 
-        <div class="row">
-          <div class="two">
-            <div>
-              <label for="birthDate">Birth date</label>
-              <input id="birthDate" type="date" />
-            </div>
-            <div>
-              <label for="birthTime">Birth time</label>
-              <input id="birthTime" type="time" step="60" placeholder="HH:MM" />
-              <div class="small">If unknown, leave blank — we’ll mark confidence lower.</div>
-            </div>
-          </div>
+      <div class="field">
+        <label>Timezone offset (minutes)</label>
+        <input id="tzOffsetMinutes" type="number" value="-300">
+      </div>
 
-          <div class="two">
-            <div>
-              <label for="tzOffset">Timezone offset (minutes)</label>
-              <input id="tzOffset" type="number" value="-300" />
-              <div class="small">Example: New York winter = -300, summer = -240.</div>
-            </div>
-            <div>
-              <label for="orb">Orb (°)</label>
-              <input id="orb" type="number" value="4" min="0" step="0.5" />
-              <div class="small">How close angles must be to count as an aspect.</div>
-            </div>
-          </div>
+      <div class="field">
+        <label>Orb (°)</label>
+        <select id="orb">
+          <option value="2">2° (tight)</option>
+          <option value="4" selected>4° (normal)</option>
+          <option value="6">6° (loose)</option>
+        </select>
+      </div>
 
-          <div class="hr"></div>
+      <div class="field" style="min-width:180px;">
+        <button id="goBtn">Compute aspects</button>
+      </div>
+    </div>
 
-          <h3>Backend</h3>
-          <div>
-            <label for="apiUrl">API base URL</label>
-            <input id="apiUrl" type="url" value="https://aspects-backend.onrender.com" />
-            <div class="small">This must match your deployed backend.</div>
-          </div>
+    <div class="chips">
+      <div class="chip active" data-mode="human">Human</div>
+      <div class="chip" data-mode="astro">Astro</div>
+      <div class="chip" data-mode="math">Math</div>
+    </div>
 
-          <div class="actions">
-            <button class="primary" id="btnCompute" type="button">Compute aspects</button>
-            <button class="ghost" id="btnDemo" type="button">Demo Data</button>
-            <button class="ghost" id="btnReset" type="button">Reset</button>
-          </div>
-
-          <div id="status" class="status">Ready.</div>
-
-          <div class="hr"></div>
-
-          <h3>What you’ll get</h3>
-          <div class="kpi">
-            <div class="chip">Top aspects + meaning</div>
-            <div class="chip">Practical prompts</div>
-            <div class="chip">Confidence markers</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- RIGHT: OUTPUTS -->
-      <section class="card">
-        <h2>Results</h2>
-
-        <div id="summary">
-          <div class="small">Fill out birth details and hit <b>Compute aspects</b>.</div>
-        </div>
-
-        <div class="hr"></div>
-
-        <h3>Top aspects</h3>
-        <table class="table" id="aspectsTable" aria-label="Aspects table">
-          <thead>
-            <tr>
-              <th>Aspect</th>
-              <th>Orb</th>
-              <th>Intensity</th>
-              <th>Plain English</th>
-            </tr>
-          </thead>
-          <tbody id="aspectsTbody">
-            <tr>
-              <td colspan="4" class="small">No results yet.</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="hr"></div>
-
-        <h3>Practical prompts</h3>
-        <div id="prompts" class="small">Prompts will appear here.</div>
-
-        <footer>
-          Tip: If your backend endpoint differs, update it in the “API base URL” field.
-          You can also hardcode it in this file near <code class="inline">DEFAULT_API_BASE</code>.
-        </footer>
-      </section>
-    </main>
+    <div class="small muted">
+      Tip: New York winter = −300, summer = −240.
+    </div>
   </div>
 
-  <script>
-    // ====== Config ======
-    const DEFAULT_API_BASE = "https://aspects-backend.onrender.com";
+  <div class="card">
+    <div id="status" class="muted">Idle.</div>
+    <div id="error" class="error"></div>
+    <div id="results"></div>
+  </div>
 
-    // ====== Elements ======
-    const el = (id) => document.getElementById(id);
-    const birthDate = el("birthDate");
-    const birthTime = el("birthTime");
-    const tzOffset = el("tzOffset");
-    const orb = el("orb");
-    const apiUrl = el("apiUrl");
-    const apiUrlText = el("apiUrlText");
-    const apiPill = el("apiPill");
-    const status = el("status");
-    const summary = el("summary");
-    const aspectsTbody = el("aspectsTbody");
-    const prompts = el("prompts");
+<script>
+/* ================= CONFIG ================= */
+const API_BASE = "https://aspects-backend.onrender.com";
 
-    // ====== Helpers ======
-    function setStatus(msg, kind = "") {
-      status.textContent = msg;
-      status.className = "status " + (kind || "");
-    }
+/* ================= COPY MODES ================= */
+const COPY = {
+  human: {
+    h: "What you’re looking at",
+    b: "Symbolic relationships between internal drives. Use as a mirror, not a verdict."
+  },
+  astro: {
+    h: "Astrology framing",
+    b: "Angular relationships (0/90/120/180°) on a 360° zodiac wheel."
+  },
+  math: {
+    h: "Math framing",
+    b: "Minimum circular separation compared to target angles within an orb."
+  }
+};
 
-    function badge(text, type) {
-      return `<span class="badge ${type || ""}">${escapeHtml(text)}</span>`;
-    }
+/* ================= HELPERS ================= */
+function normalizeTime(t) {
+  if (!t) return "12:00";
+  const m = t.match(/^(\d{1,2}):(\d{2})/);
+  if (!m) return "12:00";
+  return m[1].padStart(2,"0") + ":" + m[2];
+}
 
-    function escapeHtml(str) {
-      return String(str ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
+function esc(s){
+  return String(s ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;");
+}
 
-    function clearResults() {
-      summary.innerHTML = `<div class="small">No results yet.</div>`;
-      aspectsTbody.innerHTML = `<tr><td colspan="4" class="small">No results yet.</td></tr>`;
-      prompts.innerHTML = `<div class="small">Prompts will appear here.</div>`;
-    }
+/* ================= FETCH ================= */
+async function fetchChart(payload){
+  const r = await fetch(API_BASE + "/api/chart",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify(payload)
+  });
+  if(!r.ok) throw new Error(await r.text());
+  const j = await r.json();
+  if(!j.ok) throw new Error(j.error);
+  return j;
+}
 
-    function getApiBase() {
-      const v = (apiUrl.value || "").trim();
-      return v || DEFAULT_API_BASE;
-    }
-
-    function setApiPill() {
-      const base = getApiBase();
-      apiUrlText.textContent = base.replace(/^https?:\/\//, "");
-      apiPill.title = base;
-    }
-
-    // ====== Rendering ======
-    function render(results) {
-      const meta = results?.meta || {};
-      const subj = results?.subject || {};
-      const list = Array.isArray(results?.aspects) ? results.aspects : [];
-
-      const conf = meta.confidence || "medium";
-      const confBadge =
-        conf === "high" ? badge("High confidence", "easy") :
-        conf === "low"  ? badge("Low confidence", "hard") :
-                          badge("Medium confidence", "tight");
-
-      summary.innerHTML = `
-        <div class="kpi">
-          <div class="chip"><b>DOB:</b> ${escapeHtml(subj.date || "")} ${escapeHtml(subj.time ? ("@" + subj.time) : "")}</div>
-          <div class="chip"><b>Offset:</b> ${escapeHtml(String(meta.tzOffsetMinutes ?? ""))} min</div>
-          <div class="chip">${confBadge}</div>
+/* ================= RENDER ================= */
+function render(chart, mode){
+  const out = document.getElementById("results");
+  out.innerHTML = `
+    <div class="small">
+      <b>${COPY[mode].h}</b><br>
+      <span class="muted">${COPY[mode].b}</span>
+    </div>
+    <hr>
+    <div class="mono muted">
+      ${Object.entries(chart.planets)
+        .map(([k,v])=>`${k} ${v.toFixed(2)}`)
+        .join(" • ")}
+    </div>
+    <div style="margin-top:10px;">
+      <b>Aspects found:</b>
+      <span class="pill">${chart.aspects.length}</span>
+    </div>
+    <div class="hits">
+      ${chart.aspects.map(a=>`
+        <div class="hit">
+          <b>${esc(a.a)}</b> — <b>${esc(a.b)}</b>
+          <span class="pill">${esc(a.aspect)}</span>
+          <div class="small muted">
+            Separation ${a.separation.toFixed(2)}° • Orb ${a.orb.toFixed(2)}°
+          </div>
         </div>
-        ${meta.note ? `<div class="small" style="margin-top:10px">${escapeHtml(meta.note)}</div>` : ""}
-      `;
+      `).join("")}
+    </div>
+  `;
+}
 
-      if (!list.length) {
-        aspectsTbody.innerHTML = `<tr><td colspan="4" class="small">No aspects returned.</td></tr>`;
-        prompts.innerHTML = `<div class="small">No prompts.</div>`;
-        return;
-      }
+/* ================= MODE ================= */
+let mode="human";
+document.querySelectorAll(".chip").forEach(c=>{
+  c.onclick=()=>{
+    mode=c.dataset.mode;
+    document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x===c));
+    if(window.__last) render(window.__last,mode);
+  };
+});
 
-      aspectsTbody.innerHTML = list.map(item => {
-        const aspectText = `${item.a} ${item.aspect} ${item.b}`;
-        const orbTxt = (typeof item.orb === "number") ? `${item.orb.toFixed(2)}°` : (item.orb ?? "");
-        const intensity = item.intensity || "medium";
-        const intensityBadge =
-          intensity === "easy" ? badge("easy", "easy") :
-          intensity === "hard" ? badge("hard", "hard") :
-                                 badge("tight", "tight");
+/* ================= MAIN ================= */
+document.getElementById("goBtn").onclick = async ()=>{
+  const status=document.getElementById("status");
+  const error=document.getElementById("error");
+  error.textContent="";
 
-        return `
-          <tr>
-            <td>${escapeHtml(aspectText)}</td>
-            <td>${escapeHtml(orbTxt)}</td>
-            <td>${intensityBadge}</td>
-            <td>${escapeHtml(item.meaning || "")}</td>
-          </tr>
-        `;
-      }).join("");
+  const date=document.getElementById("birthDate").value;
+  const timeRaw=document.getElementById("birthTime").value;
+  const timeMode=document.getElementById("timeMode").value;
+  const time=timeMode==="exact"?normalizeTime(timeRaw):"12:00";
+  const tzOffsetMinutes=Number(document.getElementById("tzOffsetMinutes").value);
+  const orb=Number(document.getElementById("orb").value);
 
-      const promptItems = list
-        .map(x => x.prompt)
-        .filter(Boolean)
-        .slice(0, 8);
+  if(!date){ error.textContent="Birth date required."; return; }
 
-      prompts.innerHTML = promptItems.length
-        ? `<ol class="small" style="margin:0; padding-left:18px">${promptItems.map(p => `<li style="margin:8px 0">${escapeHtml(p)}</li>`).join("")}</ol>`
-        : `<div class="small">No prompts returned.</div>`;
-    }
-
-    // ====== Networking ======
-    async function compute() {
-      setApiPill();
-      setStatus("Computing…", "");
-      clearResults();
-
-      const base = getApiBase();
-
-      const date = birthDate.value || null;
-      const time = (birthTime.value || "").trim() || null;
-      const tzOffsetMinutes = Number(tzOffset.value);
-      const orbDeg = Number(orb.value);
-
-      if (!date) {
-        setStatus("Birth date is required.", "bad");
-        return;
-      }
-      if (Number.isNaN(tzOffsetMinutes)) {
-        setStatus("Timezone offset must be a number (minutes).", "bad");
-        return;
-      }
-      if (Number.isNaN(orbDeg) || orbDeg < 0) {
-        setStatus("Orb must be a non-negative number.", "bad");
-        return;
-      }
-
-      const payload = { date, time, tzOffsetMinutes, orb: orbDeg };
-
-      try {
-        const res = await fetch(`${base.replace(/\/$/, "")}/api/chart`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-
-        if (!res.ok) {
-          const text = await res.text();
-          setStatus(`API error (${res.status}).`, "bad");
-          summary.innerHTML = `<div class="small"><b>Backend said:</b> ${escapeHtml(text).slice(0, 1200)}</div>`;
-          return;
-        }
-
-        const data = await res.json();
-        render(data);
-        setStatus("Done.", "ok");
-      } catch (err) {
-        setStatus("Network error. Is the backend URL correct and live?", "bad");
-        summary.innerHTML = `<div class="small">${escapeHtml(err?.message || String(err))}</div>`;
-      }
-    }
-
-    // ====== Buttons ======
-    el("btnCompute").addEventListener("click", compute);
-
-    el("btnReset").addEventListener("click", () => {
-      birthDate.value = "";
-      birthTime.value = "";
-      tzOffset.value = "-300";
-      orb.value = "4";
-      apiUrl.value = DEFAULT_API_BASE;
-      setApiPill();
-      setStatus("Reset.", "");
-      clearResults();
-    });
-
-    el("btnDemo").addEventListener("click", () => {
-      birthDate.value = "1989-08-19";
-      birthTime.value = "08:58";
-      tzOffset.value = "-300";
-      orb.value = "4";
-      apiUrl.value = DEFAULT_API_BASE;
-      setApiPill();
-      setStatus("Demo data filled. Hit Compute.", "");
-    });
-
-    // ====== Init ======
-    setApiPill();
-    clearResults();
-  </script>
+  try{
+    status.textContent="Calling backend (may wake up)…";
+    const chart=await fetchChart({date,time,tzOffsetMinutes,orb});
+    window.__last=chart;
+    status.textContent="Done.";
+    render(chart,mode);
+  }catch(e){
+    status.textContent="Error.";
+    error.textContent=e.message;
+  }
+};
+</script>
 </body>
 </html>
