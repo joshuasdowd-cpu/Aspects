@@ -23,9 +23,28 @@ app.get("/api/planets", (req, res) => {
 
     const [Y, M, D] = date.split("-").map(Number);
     const [hh, mm] = time.split(":").map(Number);
-    const hour = hh + mm / 60;
+    const hour = hh + mm / const jd = julianDay(Y, M, D, hour);
+function julianDay(year, month, day, hour) {
+  // Fliegel–Van Flandern / standard astronomical JD for Gregorian calendar
+  let Y = year;
+  let M = month;
+  if (M <= 2) {
+    Y -= 1;
+    M += 12;
+  }
+  const A = Math.floor(Y / 100);
+  const B = 2 - A + Math.floor(A / 4);
 
-    const jd = swe.julday(Y, M, D, hour, swe.GREG_CAL);
+  return (
+    Math.floor(365.25 * (Y + 4716)) +
+    Math.floor(30.6001 * (M + 1)) +
+    day +
+    B -
+    1524.5 +
+    (hour / 24)
+  );
+}
+
     const flags = swe.SEFLG_MOSEPH;
 
     const bodies = [
