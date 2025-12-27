@@ -117,24 +117,21 @@
             <div>
               <label for="birthTime">Birth time</label>
               <input id="birthTime" type="time" step="60" placeholder="HH:MM" />
-              <div class="small">If unknown, pick a best-guess — we’ll mark confidence lower.</div>
+              <div class="small">If unknown, leave blank — we’ll mark confidence lower.</div>
             </div>
           </div>
 
           <div class="two">
             <div>
-              <label for="city">Birth city</label>
-              <input id="city" type="text" placeholder="e.g., Lancaster" />
+              <label for="tzOffset">Timezone offset (minutes)</label>
+              <input id="tzOffset" type="number" value="-300" />
+              <div class="small">Example: New York winter = -300, summer = -240.</div>
             </div>
             <div>
-              <label for="region">State/Region</label>
-              <input id="region" type="text" placeholder="e.g., CA" />
+              <label for="orb">Orb (°)</label>
+              <input id="orb" type="number" value="4" min="0" step="0.5" />
+              <div class="small">How close angles must be to count as an aspect.</div>
             </div>
-          </div>
-
-          <div>
-            <label for="country">Country</label>
-            <input id="country" type="text" value="US" />
           </div>
 
           <div class="hr"></div>
@@ -143,11 +140,11 @@
           <div>
             <label for="apiUrl">API base URL</label>
             <input id="apiUrl" type="url" value="https://aspects-backend.onrender.com" />
-            <div class="small">This should match your deployed backend.</div>
+            <div class="small">This must match your deployed backend.</div>
           </div>
 
           <div class="actions">
-            <button class="primary" id="btnCompute" type="button">Compute</button>
+            <button class="primary" id="btnCompute" type="button">Compute aspects</button>
             <button class="ghost" id="btnDemo" type="button">Demo Data</button>
             <button class="ghost" id="btnReset" type="button">Reset</button>
           </div>
@@ -158,9 +155,9 @@
 
           <h3>What you’ll get</h3>
           <div class="kpi">
-            <div class="chip">Top aspects + plain-English meaning</div>
-            <div class="chip">“Practical prompts” (behavior & patterns)</div>
-            <div class="chip">Confidence markers (time unknown, etc.)</div>
+            <div class="chip">Top aspects + meaning</div>
+            <div class="chip">Practical prompts</div>
+            <div class="chip">Confidence markers</div>
           </div>
         </div>
       </section>
@@ -170,7 +167,7 @@
         <h2>Results</h2>
 
         <div id="summary">
-          <div class="small">Fill out birth details and hit <b>Compute</b>.</div>
+          <div class="small">Fill out birth details and hit <b>Compute aspects</b>.</div>
         </div>
 
         <div class="hr"></div>
@@ -195,9 +192,7 @@
         <div class="hr"></div>
 
         <h3>Practical prompts</h3>
-        <div id="prompts" class="small">
-          Prompts will appear here.
-        </div>
+        <div id="prompts" class="small">Prompts will appear here.</div>
 
         <footer>
           Tip: If your backend endpoint differs, update it in the “API base URL” field.
@@ -210,19 +205,13 @@
   <script>
     // ====== Config ======
     const DEFAULT_API_BASE = "https://aspects-backend.onrender.com";
-    // Expectation: your backend exposes something like:
-    // POST {API_BASE}/api/chart
-    // body: { date:"YYYY-MM-DD", time:"HH:MM", location:{city, region, country} }
-    //
-    // If your backend uses different routes/shape, change compute() accordingly.
 
     // ====== Elements ======
     const el = (id) => document.getElementById(id);
     const birthDate = el("birthDate");
     const birthTime = el("birthTime");
-    const city = el("city");
-    const region = el("region");
-    const country = el("country");
+    const tzOffset = el("tzOffset");
+    const orb = el("orb");
     const apiUrl = el("apiUrl");
     const apiUrlText = el("apiUrlText");
     const apiPill = el("apiPill");
@@ -269,12 +258,6 @@
 
     // ====== Rendering ======
     function render(results) {
-      // Expected example shape:
-      // {
-      //   meta: { timezone:"America/New_York", confidence:"high|medium|low", note:"..." },
-      //   subject: { date, time, locationText },
-      //   aspects: [{ a:"Sun", aspect:"Square", b:"Moon", orb:2.1, intensity:"hard", meaning:"...", prompt:"..." }, ...]
-      // }
       const meta = results?.meta || {};
       const subj = results?.subject || {};
       const list = Array.isArray(results?.aspects) ? results.aspects : [];
@@ -287,8 +270,8 @@
 
       summary.innerHTML = `
         <div class="kpi">
-          <div class="chip"><b>Subject:</b> ${escapeHtml(subj.locationText || "")}</div>
           <div class="chip"><b>DOB:</b> ${escapeHtml(subj.date || "")} ${escapeHtml(subj.time ? ("@" + subj.time) : "")}</div>
+          <div class="chip"><b>Offset:</b> ${escapeHtml(String(meta.tzOffsetMinutes ?? ""))} min</div>
           <div class="chip">${confBadge}</div>
         </div>
         ${meta.note ? `<div class="small" style="margin-top:10px">${escapeHtml(meta.note)}</div>` : ""}
@@ -302,8 +285,8 @@
 
       aspectsTbody.innerHTML = list.map(item => {
         const aspectText = `${item.a} ${item.aspect} ${item.b}`;
-        const orb = (typeof item.orb === "number") ? `${item.orb.toFixed(2)}°` : (item.orb ?? "");
-        const intensity = item.intensity || "tight";
+        const orbTxt = (typeof item.orb === "number") ? `${item.orb.toFixed(2)}°` : (item.orb ?? "");
+        const intensity = item.intensity || "medium";
         const intensityBadge =
           intensity === "easy" ? badge("easy", "easy") :
           intensity === "hard" ? badge("hard", "hard") :
@@ -312,7 +295,7 @@
         return `
           <tr>
             <td>${escapeHtml(aspectText)}</td>
-            <td>${escapeHtml(orb)}</td>
+            <td>${escapeHtml(orbTxt)}</td>
             <td>${intensityBadge}</td>
             <td>${escapeHtml(item.meaning || "")}</td>
           </tr>
@@ -336,21 +319,26 @@
       clearResults();
 
       const base = getApiBase();
-      const payload = {
-        date: birthDate.value || null,
-        time: birthTime.value || null,
-        location: {
-          city: (city.value || "").trim(),
-          region: (region.value || "").trim(),
-          country: (country.value || "").trim()
-        }
-      };
 
-      // Quick minimal validation (front-end)
-      if (!payload.date || !payload.location.city) {
-        setStatus("Need at least: Birth date + Birth city.", "bad");
+      const date = birthDate.value || null;
+      const time = (birthTime.value || "").trim() || null;
+      const tzOffsetMinutes = Number(tzOffset.value);
+      const orbDeg = Number(orb.value);
+
+      if (!date) {
+        setStatus("Birth date is required.", "bad");
         return;
       }
+      if (Number.isNaN(tzOffsetMinutes)) {
+        setStatus("Timezone offset must be a number (minutes).", "bad");
+        return;
+      }
+      if (Number.isNaN(orbDeg) || orbDeg < 0) {
+        setStatus("Orb must be a non-negative number.", "bad");
+        return;
+      }
+
+      const payload = { date, time, tzOffsetMinutes, orb: orbDeg };
 
       try {
         const res = await fetch(`${base.replace(/\/$/, "")}/api/chart`, {
@@ -361,8 +349,8 @@
 
         if (!res.ok) {
           const text = await res.text();
-          setStatus(`API error (${res.status}). Check backend route /api/chart.`, "bad");
-          summary.innerHTML = `<div class="small"><b>Backend said:</b> ${escapeHtml(text).slice(0, 700)}</div>`;
+          setStatus(`API error (${res.status}).`, "bad");
+          summary.innerHTML = `<div class="small"><b>Backend said:</b> ${escapeHtml(text).slice(0, 1200)}</div>`;
           return;
         }
 
@@ -381,9 +369,8 @@
     el("btnReset").addEventListener("click", () => {
       birthDate.value = "";
       birthTime.value = "";
-      city.value = "";
-      region.value = "";
-      country.value = "US";
+      tzOffset.value = "-300";
+      orb.value = "4";
       apiUrl.value = DEFAULT_API_BASE;
       setApiPill();
       setStatus("Reset.", "");
@@ -391,12 +378,10 @@
     });
 
     el("btnDemo").addEventListener("click", () => {
-      // Demo defaults — change as you want
-      birthDate.value = "1990-01-01";
-      birthTime.value = "12:00";
-      city.value = "Lancaster";
-      region.value = "CA";
-      country.value = "US";
+      birthDate.value = "1989-08-19";
+      birthTime.value = "08:58";
+      tzOffset.value = "-300";
+      orb.value = "4";
       apiUrl.value = DEFAULT_API_BASE;
       setApiPill();
       setStatus("Demo data filled. Hit Compute.", "");
